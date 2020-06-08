@@ -1,0 +1,7 @@
+pip3 install pandas
+
+pip3 install pyttsx3 (optionnel)
+
+pip3 install gtts (optionnel --> no voice)
+
+pip3 install playsound (optionnel --> no voice)
