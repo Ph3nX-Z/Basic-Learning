@@ -10,3 +10,5 @@ Before using it, you have to download the dependencies (specified in the depende
 To exit Droid-One's chat you'll have to type : exit, goodbye or bye.
 
 For the moment, i didn't setup the loop (so you'll have to start it everytime you want to speak with it :/)
+
+by Ph3nX-Z
