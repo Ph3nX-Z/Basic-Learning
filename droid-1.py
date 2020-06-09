@@ -180,7 +180,10 @@ while True:
             try:
                 speech2(reponse_bot)
             except:
-                print("No internet connection = no voice !") #la voix google ne fonctionnera pas sans acces internet (en enlevant le 2 derriere le speech (juste la ligne d'au dessus)on reactive la voix creepy (pas besoin de co) )
+                if enter_rep!=True:
+                    print("No internet connection = no voice !") #la voix google ne fonctionnera pas sans acces internet (en enlevant le 2 derriere le speech (juste la ligne d'au dessus)on reactive la voix creepy (pas besoin de co) )
+                else:
+                    print("")    
     if speak_turn==True:
         print("Bot >>I'm Now Speaking !")
         speak_turn=False
