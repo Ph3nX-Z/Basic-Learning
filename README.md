@@ -25,6 +25,6 @@ _3 differents searching methods:_
        *raw method
        *keyword method
 
-_Include : French learning Dataset
+_Include : French Dataset_
 
 *_By Ph3nX-Z_*
