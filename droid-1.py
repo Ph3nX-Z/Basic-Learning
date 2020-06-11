@@ -1,3 +1,4 @@
+# coding=cp1252
 #################################################
 # IA by Ph3nX-Z : https://github.com/Ph3nX-Z/   #
 #################################################
@@ -8,14 +9,33 @@ import sys
 import time
 import os
 
+hamming_method=False
+question_regroupee=""
+speakmode=False
+learnmode=False
+choix=False
+passnext=False
 speak_turn=False
 enter_rep=False
+continu=False
 mini_start=1000
 
 file_creation=open("user.txt","a") #evite les erreurs du style : ce fichier est introuvable ...
 file_creation.close()
 file_creation2=open("reponses.csv","a")
 file_creation2.close()
+
+def mot_clef(database_input,question):
+    compteur=0
+    database_input_split=database_input.split(" ")
+
+    question_splitted=question.split(" ")
+    for data_sort in question_splitted:
+        for data_sort2 in database_input_split:
+            if data_sort==data_sort2:
+                compteur+=1
+
+    return compteur
 
 def hamming(a, b):
     distance=0
@@ -26,7 +46,8 @@ def hamming(a, b):
 
 
 
-def processing(test):
+def processing(test,question):
+
     minimal=0
     temp=0
     mot_final=""
@@ -35,7 +56,6 @@ def processing(test):
     question_finale=""
     mot_entier=""
     minimal=1000
-
     mot=liste[0]
     mot_split=mot.split(" ")
     question_split=question.split(" ")
@@ -49,12 +69,15 @@ def processing(test):
     for parties in mot_split:
         mot_entier += parties
         reponse_temp=liste[1]
+    
     temp=hamming(question_finale,mot_entier)
     if temp < minimal:
         mot_final=reponse_temp
         minimal=temp
+        temp_mot_entier=mot_entier
+        mot_temp_2=mot
 
-    return mot_final,str(minimal)
+    return mot_final,str(minimal),mot_temp_2
 
 
 
@@ -105,23 +128,9 @@ def write_header():  #ecrit le nom des colonnes
     writer.writeheader()
     f.close()
 
-"""def enter_reponse():
-    search=panda.read_csv("reponses.csv", delimiter=';') #regarder si la question a deja été posée
-    word=question ## a la longue faire en sorte de trouver celui qui a les mots les plus proches (le plus de lettres en commun)
-    file=open("reponses.csv",'r')
-    data=file.read()
-    count=data.count(question)
-    count=int(count)
-    if count>0:
-        return False
-    elif count==0:
-        return True"""
+
 def enter_reponse():
-    mode=input("Learning mode ? (y/n):")
-    if mode=="y":
-        return True
-    else:
-        return False
+    return True
 
 def write(question, reponse): #si la question n'as jamais été posée elle est ajoutée au fichier csv
     with open("reponses.csv","a") as csv_file:
@@ -129,13 +138,7 @@ def write(question, reponse): #si la question n'as jamais été posée elle est 
         writer=csv.DictWriter(csv_file, fieldnames=colonnes)
         writer.writerow({'question':question, "reponse":reponse})
 
-"""header=("question,reponse")
 
-test=open("reponses.csv",'r')
-content=test.read()
-occurences=content.count(header) #verifie si le nom des colonnes est present dans le fichier
-if occurences==0:
-    write_header()"""
 
 while True:
     user=getuser() #ecrit votre nom dans un fichier txt
@@ -149,9 +152,23 @@ while True:
         bye()
     elif question=='SPEAK':
         enter_rep=False
-        speak_turn=True
-    if speak_turn!=True:
-        if enter_rep != True:
+        passnext=True
+        learnmode=False
+        speakmode=True
+    elif question=="LEARN":
+        enter_rep=True
+        learnmode=True
+        passnext=True
+    elif question=="RECTIFY":
+        question=question_cache #se rappeler de la derniere question
+        reponse_corrige=input("Bot >>What was the good response to have ? :")
+        write(question,reponse_corrige)
+        rectify=True
+        passnext=True
+
+
+    if passnext!=True:
+        if enter_rep == True:
             enter_rep=enter_reponse() #resultat du enter reponse + savoir si il faut ajouter le mot a la base
         if enter_rep==True: #remettre true 
             reponse=input("I don't know sir, please tell me what's the reponse :")
@@ -160,32 +177,83 @@ while True:
             ###get csv correspondant a la question
             f=open("reponses.csv",'r')
             dico=f.read()
+            f.close()
             for item in dico.split("\n") :
                 if item != "":
-                    returned1,returned2=processing(item)
+                    returned1,returned2,question_cache=processing(item,question)
                     mini=int(returned2)
                     mot_temp=returned1
 
                     if mini<int(mini_start):
+                        hamming_method=True
                         mini_start=mini
+                        question_cache_final=question_cache
                         print("mini actuel:"+str(mini))
-                        reponse_bot=mot_temp
+                        reponse_bot_final=mot_temp
+                        
+
+            if hamming_method==True:
+                print("Hamming method")
+            
+            question_splitted_2=question.split(" ")
+            for j in range(len(question_splitted_2)):
+                question_regroupee+=question_splitted_2[j]
+
+            if len(question_cache_final)!=len(question_regroupee): #######continuer la 
+                if mini_start > 1:
+                    maxi=0
+                    p=open("reponses.csv",'r') #par mot clef
+                    dico3=p.read()
+                    p.close()
+                    for items2 in dico3.split('\n'):
+                        if items2 != "":
+                            to_func=items2.split(",")
+                            reponse_temp=to_func[1]
+                            temp=mot_clef(to_func[0], question)
+                            if temp>maxi:
+                                maxi=temp
+                                reponse_bot_final=reponse_temp
+                                print("keyword method")
+
+            question_regroupee=""
+            m=open("reponses.csv",'r')
+            dico2=m.read()
+            m.close()
+            for item in dico2.split("\n") :  ######trouver un mot exactement similaire
+                mots=item.split(",")
+                if question==mots[0]:
+                    mots2=mots[1]
+                    print(mots2)
+                    reponse_bot_final=mots2
+            print("raw method")
+                    
+                    
+
             try :
-                print("Bot >>"+reponse_bot)
+                print("Bot >>"+reponse_bot_final)
+                question_cache=question #garder ancienne question en cache
             except:
                 print("No correspondant response in the database, entering in learning mode")
                 enter_rep=True
             mini_start=1000
             mot_temp=""
             try:
-                speech2(reponse_bot)
+                speech2(reponse_bot_final)
             except:
                 if enter_rep!=True:
                     print("No internet connection = no voice !") #la voix google ne fonctionnera pas sans acces internet (en enlevant le 2 derriere le speech (juste la ligne d'au dessus)on reactive la voix creepy (pas besoin de co) )
                 else:
                     print("")    
-    if speak_turn==True:
-        print("Bot >>I'm Now Speaking !")
-        speak_turn=False
+    if passnext==True:
+        if learnmode==True:
+            print("Bot >>Switching Mode, Now in LearnMode !")
+        elif speakmode==True:
+            print("Bot >>Switching Mode, Now in SpeakMode !")
+            speakmode=False
+        elif rectify==True:
+            print("Bot >>I rectified my database !")
+            rectify=False
+        passnext=False
+        hamming_method=False
 #errors : aplay : sudo apt-get install alsa-utils
 #pas encore de loop mais je l'ajouterais bientot ^^
