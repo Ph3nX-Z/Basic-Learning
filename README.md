@@ -7,10 +7,21 @@ You'll have to teach him what are the right words to use when someone will ask h
 
 Before using it, you have to download the dependencies (specified in the dependencies.txt file) to make it work.
 
-To exit Droid-One's chat you'll have to type : exit, goodbye or bye.
+_To exit Droid-One's chat you'll have to type :_
+  *exit
+  *bye
+  *goodbye
 
-If you enter the Learning Mode you have to say speak to exit it.
+_3 commands :_
+  *learn : enter learnmode
+  *speak : exit learnmode
+  *rectify : rectify the response of the bot to the last question.
 
-For the moment, i didn't setup the loop (so you'll have to start it everytime you want to speak with it :/)
+_3 differents searching methods:_
+  *hamming method
+  *raw method
+  *keyword method
 
-By Ph3nX-Z
+_Include : French learning Dataset
+
+*_By Ph3nX-Z_*
